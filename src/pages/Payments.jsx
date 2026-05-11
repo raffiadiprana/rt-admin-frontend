@@ -4,7 +4,6 @@ import {
   createPayment,
   updatePayment,
   deletePayment,
-  generateMonthly,
   getFeeCategories,
   getHouses,
 } from "../api/client";
@@ -40,7 +39,6 @@ export default function Payments() {
   const [houses, setHouses] = useState([]);
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     house_id: "",
@@ -67,20 +65,6 @@ export default function Payments() {
   useEffect(() => {
     load();
   }, [year, month]);
-
-  const handleGenerate = async () => {
-    if (!confirm(`Generate tagihan ${MONTHS[month - 1]} ${year}?`)) return;
-    setGenerating(true);
-    try {
-      const res = await generateMonthly(year, month);
-      alert(res.data.message);
-      load();
-    } catch (err) {
-      alert(err.response?.data?.message || "Gagal generate");
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   const handleCategoryChange = (catId) => {
     const cat = categories.find((c) => c.id === +catId);
@@ -167,13 +151,7 @@ export default function Payments() {
               <option key={y}>{y}</option>
             ))}
           </select>
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="btn-secondary whitespace-nowrap"
-          >
-            {generating ? "Generate..." : "⚡ Generate Tagihan"}
-          </button>
+
           <button
             onClick={() => {
               setForm({
@@ -189,7 +167,7 @@ export default function Payments() {
             }}
             className="btn-primary whitespace-nowrap"
           >
-            + Catat Bayar
+            + Catat Pembayaran
           </button>
         </div>
       </div>
@@ -314,7 +292,7 @@ export default function Payments() {
                     colSpan={7}
                     className="px-6 py-10 text-center text-gray-400"
                   >
-                    Belum ada tagihan. Klik "Generate Tagihan" untuk membuat
+                    Belum ada tagihan. Klik "Catat Pembayaran" untuk membuat
                     tagihan bulan ini.
                   </td>
                 </tr>
